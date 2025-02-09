@@ -1,0 +1,167 @@
+package com.example.finalproject5points.Activities;
+
+import static com.example.finalproject5points.Activities.LogIn.currentTrainee;
+import static com.example.finalproject5points.FBrefs.refAuth;
+import static com.example.finalproject5points.FBrefs.storageReference;
+
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+
+import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+import com.example.finalproject5points.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+
+public class MainMembershipActivity extends AppCompatActivity {
+
+    /**
+     * @author Roey Schwartz rs7532@bs.amalnet.k12.il
+     * @version 1.0
+     * @since 14/12/2024
+     * this activity is the main activity after signing in to the user, admin has option of
+     add/update/remove users.
+     */
+
+    boolean isAdmin;
+    String phoneNum;
+
+    /**
+     * This function checks if the user that signed in is an admin,
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     *
+     */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main_membership);
+
+        currentTrainee.child("isAdmin").get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+            @Override
+            public void onSuccess(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()){
+                    isAdmin = (boolean) dataSnapshot.getValue();
+                }
+            }
+        });
+//        currentTrainee.child("phone").get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+//            @Override
+//            public void onSuccess(DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.exists()){
+//                    phoneNum = dataSnapshot.getValue().toString();
+//                    updatePhotoName();
+//                }
+//            }
+//        });
+    }
+
+    private void updatePhotoName(){
+        try {
+            File localfile = File.createTempFile("tmp", ".png");
+            storageReference.child("tmp").getFile(localfile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                    String filePath = localfile.getPath();
+                    Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                    byte[] image = baos.toByteArray();
+                    uploadPhoto(image);
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void uploadPhoto(byte[] image){
+        storageReference.child(currentTrainee.getKey()).putBytes(image).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Log.i("image with uid", "image uploaded successfully with the uid.");
+                storageReference.child("tmp").delete();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e("image with uid", e.toString());
+            }
+        });
+    }
+
+    /**
+     * This function creates the menu.
+     *
+     * @param menu The options menu in which you place your items.
+     *
+     * @return true
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        if(isAdmin){
+            menu.add("Add new membership");
+            menu.add("See all subscriptions");
+            menu.add("Update a membership");
+        }
+        menu.add("Sign out");
+        return true;
+    }
+
+    /**
+     * This function routes between the activities by the user choice.
+     *
+     * @param item The menu item that was selected.
+     *
+     * @return true
+     */
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        String st = item.getTitle().toString();
+        Intent intent = new Intent();
+        if(st.equals("Add new membership")){
+            intent = new Intent(this, AddMembership.class);
+        }
+        else if (st.equals("Sign out")){
+            refAuth.signOut();
+            intent = new Intent(this, LogIn.class);
+            SharedPreferences settings = getSharedPreferences("user details", MODE_PRIVATE);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString("Email", "");
+            editor.putString("Password", "");
+            editor.commit();
+        }
+        else if(st.equals("See all subscriptions")){
+            intent = new Intent(this, seeMemberships.class);
+        }
+        else if(st.equals("Update a membership")){
+            intent = new Intent(this, seeMemberships.class);
+            intent.putExtra("update", true);
+        }
+        startActivity(intent);
+        return super.onOptionsItemSelected(item);
+    }
+}

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "163875135892",
+    "project_id": "finalproject5points",
+    "storage_bucket": "finalproject5points.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:163875135892:android:4bab1c08489c7926a66f81",
+        "android_client_info": {
+          "package_name": "com.example.finalproject5points"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjmfRvZKMbvoOWZ2IvP1lQmZ4WvbKYLxM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
