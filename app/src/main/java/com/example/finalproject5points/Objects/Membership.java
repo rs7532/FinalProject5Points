@@ -55,6 +55,7 @@ public class Membership {
     public void setAdmin(boolean admin) {
         this.admin = admin;
     }
+
     public String toString(){
         String tmp = this.fullName + "\n" + this.phone + "\n" + this.email + "\n";
 

@@ -305,7 +305,7 @@ public class LogIn extends AppCompatActivity {
      */
     private void updatePhotoFBName(){
         try {
-            File localfile = File.createTempFile(Uid, "jpeg");
+            File localfile = File.createTempFile(Uid, ".jpeg");
             storageReference.child(phone.getText().toString()).getFile(localfile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {

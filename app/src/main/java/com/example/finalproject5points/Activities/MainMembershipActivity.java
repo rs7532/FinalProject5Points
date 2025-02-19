@@ -45,7 +45,6 @@ public class MainMembershipActivity extends AppCompatActivity {
      */
 
     boolean isAdmin;
-    String phoneNum;
 
     /**
      * This function checks if the user that signed in is an admin,
@@ -65,49 +64,6 @@ public class MainMembershipActivity extends AppCompatActivity {
                 if (dataSnapshot.exists()){
                     isAdmin = (boolean) dataSnapshot.getValue();
                 }
-            }
-        });
-//        currentTrainee.child("phone").get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
-//            @Override
-//            public void onSuccess(DataSnapshot dataSnapshot) {
-//                if (dataSnapshot.exists()){
-//                    phoneNum = dataSnapshot.getValue().toString();
-//                    updatePhotoName();
-//                }
-//            }
-//        });
-    }
-
-    private void updatePhotoName(){
-        try {
-            File localfile = File.createTempFile("tmp", ".png");
-            storageReference.child("tmp").getFile(localfile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                    String filePath = localfile.getPath();
-                    Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-                    byte[] image = baos.toByteArray();
-                    uploadPhoto(image);
-                }
-            });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void uploadPhoto(byte[] image){
-        storageReference.child(currentTrainee.getKey()).putBytes(image).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Log.i("image with uid", "image uploaded successfully with the uid.");
-                storageReference.child("tmp").delete();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e("image with uid", e.toString());
             }
         });
     }
