@@ -58,14 +58,14 @@ public class MainMembershipActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_membership);
 
-        currentTrainee.child("isAdmin").get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
-            @Override
-            public void onSuccess(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()){
-                    isAdmin = (boolean) dataSnapshot.getValue();
-                }
-            }
-        });
+//        currentTrainee.child("admin").get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+//            @Override
+//            public void onSuccess(DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.exists()){
+//                    isAdmin = (boolean) dataSnapshot.getValue();
+//                }
+//            }
+//        });
     }
 
     /**
@@ -79,10 +79,10 @@ public class MainMembershipActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         if(isAdmin){
-            menu.add("Add new membership");
-            menu.add("See all subscriptions");
-            menu.add("Update a membership");
         }
+        menu.add("Add new membership");
+        menu.add("See all subscriptions");
+        menu.add("Update a membership");
         menu.add("Sign out");
         return true;
     }

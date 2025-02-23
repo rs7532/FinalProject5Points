@@ -1,8 +1,10 @@
 package com.example.finalproject5points.Activities;
 
+import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.ContextCompat.startActivity;
 import static com.example.finalproject5points.Activities.LogIn.currentTrainee;
 import static com.example.finalproject5points.FBrefs.refAuth;
+import static com.example.finalproject5points.FBrefs.refSports;
 import static com.example.finalproject5points.FBrefs.refTrainees;
 import static com.example.finalproject5points.FBrefs.storageReference;
 
@@ -116,6 +118,23 @@ public class AddMembership extends AppCompatActivity {
     }
 
     /**
+     * This function removes the temporary trains that created in firebase realtime database for a
+     new membership.
+     */
+    @Override
+    protected void onStop() {
+        super.onStop();
+        refTrainees.child("tmp").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (task.isSuccessful()) {
+                    refTrainees.child("tmp").removeValue();
+                }
+            }
+        });
+    }
+
+    /**
      * This function is to set the data of the user that the admin wants to update.
      */
     private void setData(){
@@ -131,6 +150,25 @@ public class AddMembership extends AppCompatActivity {
             }
         });
         setProfilePhoto();
+        getTrainsExistTrainee();
+    }
+
+    /**
+     * This function downloads from firebase realtime database exist trains data of the trainee that
+     the admin wants to edit 
+     */
+    private void getTrainsExistTrainee(){
+        refTrainees.child(gotUid).child("trainsData").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DataSnapshot ds = task.getResult();
+                    for (DataSnapshot data : ds.getChildren()) {
+                        trainsObjArray.add(data.getValue(Train.class));
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -138,12 +176,16 @@ public class AddMembership extends AppCompatActivity {
      */
     private void setProfilePhoto(){
         try {
-            File localfile = File.createTempFile(gotUid, ".png");
+            File localfile = File.createTempFile(gotUid, ".jpeg");
             storageReference.child(gotUid).getFile(localfile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                     String filePath = localfile.getPath();
                     Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+                    profileIv.setScaleType(ImageView.ScaleType.FIT_XY);
+                    if (bitmap.getWidth() > bitmap.getHeight()){
+                        profileIv.setRotation(90);
+                    }
                     profileIv.setImageBitmap(bitmap);
                 }
             });
@@ -161,38 +203,77 @@ public class AddMembership extends AppCompatActivity {
      */
     public void saveClicked(View view) {
         if (nameEt.getText().toString().isEmpty() || emailEt.getText().toString().isEmpty()) {
-            Toast.makeText(AddMembership.this, "Enter email and name correctly!", Toast.LENGTH_LONG).show();
+            Toast.makeText(AddMembership.this, "Enter email and name correctly!", LENGTH_LONG).show();
         }
         if (phoneEt.getText().toString().isEmpty() || phoneEt.getText().toString().length() > 10) {
-            Toast.makeText(AddMembership.this, "Enter valid phone number!", Toast.LENGTH_LONG).show();
+            Toast.makeText(AddMembership.this, "Enter valid phone number!", LENGTH_LONG).show();
         } else {
             if (trainsObjArray.isEmpty()){
-                Toast.makeText(AddMembership.this, "enter the user's training data", Toast.LENGTH_LONG).show();
+                if(gotUid == null){
+                    Toast.makeText(AddMembership.this, "enter the user's training data", LENGTH_LONG).show();
+                }
             }
             else{
-                storageReference.child(phoneEt.getText().toString()).putBytes(imageByte).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Log.i("image_upload", "Image uploaded successfully.");
+                if (imageByte != null){
+                    if (gotUid == null){
+                        storageReference.child(phoneEt.getText().toString()).putBytes(imageByte).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                Log.i("image_upload", "Image uploaded successfully.");
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e("image_upload", "Image upload failed: "+ e);
+                            }
+                        });
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.i("image_upload", "Image upload failed: "+ e);
+                    else{
+                        storageReference.child(gotUid).putBytes(imageByte).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                Log.i("image_upload", "Image uploaded successfully.");
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e("image_upload", "Image upload failed: "+ e);
+                            }
+                        });
                     }
-                });
-                Membership tmp = new Membership(
-                        nameEt.getText().toString(),
-                        emailEt.getText().toString(),
-                        phoneEt.getText().toString(),
-                        trainsObjArray,
-                        isGuard.isChecked(),
-                        isAdmin.isChecked()
-                );
-                refTrainees.child(phoneEt.getText().toString()).setValue(tmp);
-                refTrainees.child("tmp").removeValue();
-                finish();
+                    addNewMembership();
+                }
+                else{
+                    Toast.makeText(this, "choose an image", LENGTH_LONG).show();
+                }
             }
+        }
+    }
+
+    /**
+     * This function adds the new membership or updating the membership's data that the admin wanted
+     to update.
+     */
+    private void addNewMembership(){
+        Membership tmp = new Membership(
+                nameEt.getText().toString(),
+                emailEt.getText().toString(),
+                phoneEt.getText().toString(),
+                trainsObjArray,
+                isGuard.isChecked(),
+                isAdmin.isChecked()
+        );
+        if (gotUid == null){
+            refTrainees.child(phoneEt.getText().toString()).setValue(tmp);
+            refTrainees.child("tmp").removeValue();
+            Toast.makeText(AddMembership.this, "membership added successfully!", LENGTH_LONG).show();
+            finish();
+            startActivity(getIntent());
+        }
+        else{
+            refTrainees.child(gotUid).setValue(tmp);
+            Toast.makeText(AddMembership.this, "membership updated successfully!", LENGTH_LONG).show();
+            finish();
         }
     }
 
@@ -230,7 +311,7 @@ public class AddMembership extends AppCompatActivity {
                     startActivityForResult(intent, CAMERA_REQUESTCODE);
                 }
                 else{
-                    Toast.makeText(AddMembership.this, "this isn't supported", Toast.LENGTH_LONG).show();
+                    Toast.makeText(AddMembership.this, "this isn't supported", LENGTH_LONG).show();
                 }
             }
         });
@@ -264,17 +345,21 @@ public class AddMembership extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         Bitmap bitmap;
         if (requestCode == PICK_TRAINS && resultCode == RESULT_OK){
-            refTrainees.child("tmp").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DataSnapshot ds = task.getResult();
-                        for (DataSnapshot data : ds.getChildren()) {
-                            trainsObjArray.add(data.getValue(Train.class));
+            if (gotUid == null){
+                refTrainees.child("tmp").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DataSnapshot ds = task.getResult();
+                            for (DataSnapshot data : ds.getChildren()) {
+                                trainsObjArray.add(data.getValue(Train.class));
+                            }
                         }
                     }
-                }
-            });
+                });
+            } else{
+                getTrainsExistTrainee();
+            }
         }
         if (requestCode == GALLERY_REQUESTCODE && resultCode == RESULT_OK && data != null){
             Uri urimage = data.getData();
@@ -294,6 +379,7 @@ public class AddMembership extends AppCompatActivity {
             bitmap = (Bitmap) data.getExtras().get("data");
             profileIv.setScaleType(ImageView.ScaleType.CENTER_CROP);
             profileIv.setImageBitmap(bitmap);
+
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);

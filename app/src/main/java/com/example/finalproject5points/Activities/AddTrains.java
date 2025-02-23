@@ -195,12 +195,11 @@ public class AddTrains extends AppCompatActivity implements AdapterView.OnItemSe
                     }
                     Train tmp = new Train(sports[sportsSpin.getSelectedItemPosition()], trainArea, trainingtime, coachNameEt.getText().toString());
                     if (uidUpdate != null){
-                        refTrainees.child(uidUpdate).child("trainsData").child(tmp.getTrainingTime())
+                        refTrainees.child(uidUpdate).child("trainsData").child(String.valueOf(trainsData.size()))
                                 .setValue(tmp);
-
                     }
                     else {
-                        refTrainees.child("tmp").child(trainingtime)
+                        refTrainees.child("tmp").child(String.valueOf(trainsData.size()))
                                 .setValue(tmp);
                     }
                     trainsData.add(tmp.toString());
