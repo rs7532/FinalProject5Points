@@ -76,10 +76,12 @@ public class MainMembershipActivity extends AppCompatActivity {
 
         checkAdmin();
         retrieveExistTrains();
-        displayTrainTv();
 
     }
 
+    /**
+     * This function checks if the user is an admin.
+     */
     private void checkAdmin(){
         currentTrainee.child("admin").get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
             @Override
@@ -92,6 +94,9 @@ public class MainMembershipActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * This function gets the user's Training data and presents it.
+     */
     private void retrieveExistTrains(){
         refMembershipTrains.get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
             @SuppressLint("SetTextI18n")
@@ -110,13 +115,6 @@ public class MainMembershipActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    @SuppressLint("SetTextI18n")
-    private void displayTrainTv(){
-        for (int i = 0; i < trainsDisplay.size(); i++){
-            details.setText(details.getText() + "\n" + trainsDisplay.get(i).toString());
-        }
     }
 
     /**
