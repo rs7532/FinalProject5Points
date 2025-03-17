@@ -163,7 +163,7 @@ public class AddTrains extends AppCompatActivity implements AdapterView.OnItemSe
      */
     public void addTimeDay(View view) {
         if (daysSpin.getVisibility() == View.INVISIBLE){
-            Train tmp = new Train("Gym");
+            Train tmp = new Train(sportsSpin.getSelectedItem().toString());
             if (uidUpdate != null){
                 refTrainees.child(uidUpdate).child("trainsData").child(tmp.getTrainingTime())
                         .setValue(tmp);

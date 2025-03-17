@@ -2,18 +2,23 @@ package com.example.finalproject5points.Activities;
 
 import static com.example.finalproject5points.Activities.LogIn.currentTrainee;
 import static com.example.finalproject5points.FBrefs.refAuth;
+import static com.example.finalproject5points.FBrefs.refMembershipTrains;
 import static com.example.finalproject5points.FBrefs.storageReference;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -22,6 +27,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.finalproject5points.Objects.Train;
 import com.example.finalproject5points.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -33,6 +39,8 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
 
 public class MainMembershipActivity extends AppCompatActivity {
 
@@ -45,6 +53,9 @@ public class MainMembershipActivity extends AppCompatActivity {
      */
 
     boolean isAdmin;
+    ArrayList<Train> trainsDisplay;
+    TextView details;
+
 
     /**
      * This function checks if the user that signed in is an admin,
@@ -53,19 +64,59 @@ public class MainMembershipActivity extends AppCompatActivity {
      *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
      *
      */
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_membership);
 
-//        currentTrainee.child("admin").get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
-//            @Override
-//            public void onSuccess(DataSnapshot dataSnapshot) {
-//                if (dataSnapshot.exists()){
-//                    isAdmin = (boolean) dataSnapshot.getValue();
-//                }
-//            }
-//        });
+        details = findViewById(R.id.TrainsDetails_Tv);
+        details.setMovementMethod(new ScrollingMovementMethod());
+        trainsDisplay = new ArrayList<>();
+
+        checkAdmin();
+        retrieveExistTrains();
+        displayTrainTv();
+
+    }
+
+    private void checkAdmin(){
+        currentTrainee.child("admin").get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+            @Override
+            public void onSuccess(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()){
+                    isAdmin = (boolean) dataSnapshot.getValue();
+                    invalidateOptionsMenu();
+                }
+            }
+        });
+    }
+
+    private void retrieveExistTrains(){
+        refMembershipTrains.get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onSuccess(DataSnapshot dS) {
+                for (DataSnapshot dataSnapshot: dS.getChildren()){
+                    Train tmp = dataSnapshot.getValue(Train.class);
+                    Calendar calendar = Calendar.getInstance();
+                    if (Integer.parseInt(String.valueOf(tmp.getTrainingTime().charAt(0))) >= calendar.get(Calendar.DAY_OF_WEEK) || tmp.getTrainName().equals("Gym")){
+                        if (trainsDisplay.size() < 3){
+                            trainsDisplay.add(tmp);
+                            details.setText(details.getText() + "\n" +
+                                    "\n • " + tmp.toString());
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void displayTrainTv(){
+        for (int i = 0; i < trainsDisplay.size(); i++){
+            details.setText(details.getText() + "\n" + trainsDisplay.get(i).toString());
+        }
     }
 
     /**
@@ -79,10 +130,10 @@ public class MainMembershipActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         if(isAdmin){
+            menu.add("Add new membership");
+            menu.add("See all subscriptions");
+            menu.add("Update a membership");
         }
-        menu.add("Add new membership");
-        menu.add("See all subscriptions");
-        menu.add("Update a membership");
         menu.add("Sign out");
         return true;
     }
@@ -119,5 +170,10 @@ public class MainMembershipActivity extends AppCompatActivity {
         }
         startActivity(intent);
         return super.onOptionsItemSelected(item);
+    }
+
+    public void qrCode_pressed(View view) {
+        Intent intent = new Intent(MainMembershipActivity.this, getIn_SportsCenter.class);
+        startActivity(intent);
     }
 }

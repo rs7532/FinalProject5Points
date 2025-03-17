@@ -3,6 +3,7 @@ package com.example.finalproject5points.Activities;
 import static com.example.finalproject5points.FBrefs.FBDB;
 import static com.example.finalproject5points.FBrefs.Uid;
 import static com.example.finalproject5points.FBrefs.refAuth;
+import static com.example.finalproject5points.FBrefs.refMembershipTrains;
 import static com.example.finalproject5points.FBrefs.refSports;
 import static com.example.finalproject5points.FBrefs.refTrainees;
 import static com.example.finalproject5points.FBrefs.storageReference;
@@ -109,6 +110,7 @@ public class LogIn extends AppCompatActivity {
                         Toast.makeText(LogIn.this, "Connected!", Toast.LENGTH_LONG).show();
                         Log.i("Login act", "Login success");
                         currentTrainee = refTrainees.child(refAuth.getUid());
+                        refMembershipTrains = currentTrainee.child("trainsData");
                         pd.dismiss();
                         startActivity(intent);
                     }
@@ -247,6 +249,7 @@ public class LogIn extends AppCompatActivity {
                             Toast.makeText(LogIn.this, "Connected!", Toast.LENGTH_LONG).show();
                             Log.i("Login act", "Login success");
                             currentTrainee = refTrainees.child(refAuth.getUid());
+                            refMembershipTrains = currentTrainee.child("trainsData");
                             startActivity(intent);
                         } else {
                             Toast.makeText(LogIn.this, "Wrong email or password, try again!", Toast.LENGTH_LONG).show();
@@ -275,7 +278,7 @@ public class LogIn extends AppCompatActivity {
                     Toast.makeText(LogIn.this, "Connected!", Toast.LENGTH_LONG).show();
                     Log.i("Login act", "create user success");
                     Uid = refAuth.getUid();
-                    currentTrainee = refTrainees.child(Uid);
+                    currentTrainee = refTrainees.child(refAuth.getUid());
                     updateBranchName();
                     updatePhotoFBName();
                     addTraineeTrainsData();

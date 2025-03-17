@@ -62,25 +62,32 @@ public class Train {
         if(this.trainName.equals("Gym")){
             return this.trainName + ", Entry is allowed at any time for any facility";
         }
-        else{
-            String day = "";
-            String time = this.trainingTime.substring(1, 3) + ":" + this.trainingTime.substring(3);
-            if (this.trainingTime.charAt(0) == '1') {
-                day = "Sunday";
-            } else if (this.trainingTime.charAt(0) == '2') {
-                day = "Monday";
-            } else if (this.trainingTime.charAt(0) == '3') {
-                day = "Tuesday";
-            } else if (this.trainingTime.charAt(0) == '4') {
-                day = "Wednesday";
-            } else if (this.trainingTime.charAt(0) == '5') {
-                day = "Thursday";
-            } else if (this.trainingTime.charAt(0) == '6') {
-                day = "Friday";
-            } else if (this.trainingTime.charAt(0) == '7'){
-                day = "Saturday";
-            }
-            return this.trainName + ", " + this.coachName + ", " + this.trainingArea + ", " + day + ", " + time;
+        else if(this.trainName.equals("Pool")){
+            return this.trainName + ", Entry is allowed at any time for any facility except gym";
         }
+        else{
+            String day = getDayofWeek();
+            String time = this.trainingTime.substring(1, 3) + ":" + this.trainingTime.substring(3);
+
+            return this.trainName + " with coach " + this.coachName + " at the \n" + this.trainingArea + " on "
+                    + day + " at " + time;        }
+    }
+    public String getDayofWeek(){
+        if (this.trainingTime.charAt(0) == '1') {
+            return "Sunday";
+        } else if (this.trainingTime.charAt(0) == '2') {
+            return "Monday";
+        } else if (this.trainingTime.charAt(0) == '3') {
+            return "Tuesday";
+        } else if (this.trainingTime.charAt(0) == '4') {
+            return "Wednesday";
+        } else if (this.trainingTime.charAt(0) == '5') {
+            return "Thursday";
+        } else if (this.trainingTime.charAt(0) == '6') {
+            return "Friday";
+        } else if (this.trainingTime.charAt(0) == '7'){
+            return "Saturday";
+        }
+        return "";
     }
 }
