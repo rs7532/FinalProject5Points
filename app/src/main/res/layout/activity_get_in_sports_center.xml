@@ -40,7 +40,20 @@
 
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="410dp" />
+                android:layout_height="200dp" />
+
+            <Button
+                android:id="@+id/qrScanBtn"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:onClick="scanQr_Clicked"
+                android:text="Scan QR"
+                android:visibility="invisible" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="180dp" />
 
             <TextView
                 android:id="@+id/back_Tv"

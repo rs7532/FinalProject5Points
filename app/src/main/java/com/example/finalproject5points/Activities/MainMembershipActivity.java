@@ -88,7 +88,6 @@ public class MainMembershipActivity extends AppCompatActivity {
             public void onSuccess(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()){
                     isAdmin = (boolean) dataSnapshot.getValue();
-                    invalidateOptionsMenu();
                 }
             }
         });

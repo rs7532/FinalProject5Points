@@ -11,7 +11,9 @@ import com.google.firebase.storage.StorageReference;
 public class FBrefs {
     public static FirebaseDatabase FBDB = FirebaseDatabase.getInstance();
     public static DatabaseReference refTrainees = FBDB.getReference("AllMemberships");
-    public static DatabaseReference refEncryptionKeys = FBDB.getReference("EncryptionKeys");
+    public static DatabaseReference refEncryptionKey = FBDB.getReference("EncryptionKey");
+    public static DatabaseReference refGotin = FBDB.getReference("GotIn");
+    public static DatabaseReference NfcStr = FBDB.getReference("NfcStr");
     public static DatabaseReference refMembershipTrains;
     public static DatabaseReference refSports = FBDB.getReference("Sports");
     public static FirebaseAuth refAuth = FirebaseAuth.getInstance();

@@ -1,8 +1,10 @@
 package com.example.finalproject5points.Activities;
 
 import static com.example.finalproject5points.Activities.LogIn.currentTrainee;
+import static com.example.finalproject5points.FBrefs.NfcStr;
 import static com.example.finalproject5points.FBrefs.Uid;
-import static com.example.finalproject5points.FBrefs.refEncryptionKeys;
+import static com.example.finalproject5points.FBrefs.refEncryptionKey;
+import static com.example.finalproject5points.FBrefs.refGotin;
 
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
@@ -20,22 +22,28 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.finalproject5points.CaptureAct;
 import com.example.finalproject5points.R;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
@@ -53,13 +61,15 @@ public class getIn_SportsCenter extends AppCompatActivity {
      * @since 13/03/2024
      * this activity has the options to get in the sports center (with nfc or qr code).
      */
+    boolean isGuard;
     TextView tV_name, back_Tv;
     ImageView iV_qrcode;
     Timer timer;
-    Random rnd = new Random();
-    final int encryptionKey = rnd.nextInt(100);
     NfcAdapter nfcAdapter;
     PendingIntent pendingIntent;
+    Button scanQrBtn;
+    String scannedData;
+    Integer encryptionKey;
 
     /**
      *
@@ -78,19 +88,13 @@ public class getIn_SportsCenter extends AppCompatActivity {
         tV_name = findViewById(R.id.tV_name);
         iV_qrcode = findViewById(R.id.iV_Qrcode);
         back_Tv = findViewById(R.id.back_Tv);
+        scanQrBtn = findViewById(R.id.qrScanBtn);
 
-        currentTrainee.child("fullName").get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
-            @Override
-            public void onSuccess(DataSnapshot dataSnapshot) {
-                tV_name.setText(dataSnapshot.getValue(String.class));
-            }
-        });
-
-        refEncryptionKeys.child(Uid).child("Key").setValue(encryptionKey);
-
+        getName();
+        checkGuard();
         backBtn();
         start_createQR();
-
+        getEncryptionkey();
 
         Intent intent = new Intent(this, getClass());
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -99,6 +103,42 @@ public class getIn_SportsCenter extends AppCompatActivity {
 
         pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+    }
+
+    private void getEncryptionkey(){
+        refEncryptionKey.get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+            @Override
+            public void onSuccess(DataSnapshot dataSnapshot) {
+                encryptionKey = dataSnapshot.getValue(Integer.class);
+            }
+        });
+    }
+
+    private void getName(){
+        currentTrainee.child("fullName").get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+            @Override
+            public void onSuccess(DataSnapshot dataSnapshot) {
+                tV_name.setText(dataSnapshot.getValue(String.class));
+            }
+        });
+    }
+
+    private void checkGuard() {
+        currentTrainee.child("guard").get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+            @Override
+            public void onSuccess(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()){
+                    isGuard = (boolean) dataSnapshot.getValue();
+                    showScan();
+                }
+            }
+        });
+    }
+
+    private void showScan(){
+        if (isGuard){
+            scanQrBtn.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -165,12 +205,26 @@ public class getIn_SportsCenter extends AppCompatActivity {
                         case NdefRecord.TNF_WELL_KNOWN:
                             if (Arrays.equals(record.getType(), NdefRecord.RTD_TEXT)) {
                                 String st = new String(record.getPayload()).substring(3);
-                                Toast.makeText(getIn_SportsCenter.this, st, Toast.LENGTH_LONG).show();
+                                checkEntrance(st);
                             }
                     }
                 }
             }
         }
+    }
+
+    private void checkEntrance(String st){
+        NfcStr.get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+            @Override
+            public void onSuccess(DataSnapshot dataSnapshot) {
+                String str = dataSnapshot.getValue(String.class);
+                if (str.equals(st)){
+                    allowGetInNFC();
+                    Toast.makeText(getIn_SportsCenter.this, "Welcome!", Toast.LENGTH_LONG).show();
+                    finish();
+                }
+            }
+        });
     }
 
     /**
@@ -230,6 +284,20 @@ public class getIn_SportsCenter extends AppCompatActivity {
         return String.valueOf(ch);
     }
 
+    private String decryption(String toDecrypt){
+        char character;
+        char[] ch = new char[toDecrypt.length()];
+
+        for(int i = 0; i < toDecrypt.length(); i++){
+            character = toDecrypt.charAt(i);
+            if (i < 8 || i > (toDecrypt.length() - 6)){
+                character = (char) (character - encryptionKey);
+            }
+            ch[i] = character;
+        }
+        return String.valueOf(ch);
+    }
+
     /**
      * This function creates the button to return to the main activity.
      */
@@ -247,4 +315,53 @@ public class getIn_SportsCenter extends AppCompatActivity {
         back_Tv.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
+    public void scanQr_Clicked(View view) {
+        scanCode();
+    }
+
+    private void scanCode() {
+        ScanOptions options = new ScanOptions();
+        options.setOrientationLocked(true);
+        options.setCaptureActivity(CaptureAct.class);
+        barLaucher.launch(options);
+    }
+
+    ActivityResultLauncher<ScanOptions> barLaucher = registerForActivityResult(new ScanContract(), result ->{
+        if(result.getContents() != null){
+            scannedData = result.getContents();
+            decodeData();
+        }
+    });
+
+    private void decodeData(){
+        String decryptedStr = decryption(scannedData);
+
+        @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        String tmp = df.format(Calendar.getInstance().getTime());
+        Integer current_day = Integer.valueOf(tmp.substring(0, 8));
+        Integer current_time = Integer.valueOf(tmp.substring(9));
+
+        Integer day = Integer.valueOf(decryptedStr.substring(0, 8));
+        Integer time = Integer.valueOf(decryptedStr.substring(decryptedStr.length() - 9));
+
+        if(current_day - day == 0){
+            if (current_time - time < 6){
+                allowGetInQR(decryptedStr.substring(8, decryptedStr.length() - 9), day, time);
+            }
+        }
+    }
+
+    private void allowGetInQR(String uid, Integer day, Integer time) {
+        refGotin.child(String.valueOf(day)).child(uid).setValue(String.valueOf(time));
+        Toast.makeText(getIn_SportsCenter.this, "Welcome!", Toast.LENGTH_LONG).show();
+        finish();
+    }
+
+    private void allowGetInNFC() {
+        @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        String tmp = df.format(Calendar.getInstance().getTime());
+        Integer current_day = Integer.valueOf(tmp.substring(0, 8));
+        Integer current_time = Integer.valueOf(tmp.substring(9));
+        refGotin.child(String.valueOf(current_day)).child(Uid).setValue(String.valueOf(current_time));
+    }
 }
