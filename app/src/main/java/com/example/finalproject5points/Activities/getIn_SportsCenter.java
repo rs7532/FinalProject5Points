@@ -3,13 +3,16 @@ package com.example.finalproject5points.Activities;
 import static com.example.finalproject5points.Activities.LogIn.currentTrainee;
 import static com.example.finalproject5points.FBrefs.NfcStr;
 import static com.example.finalproject5points.FBrefs.Uid;
+import static com.example.finalproject5points.FBrefs.refAuth;
 import static com.example.finalproject5points.FBrefs.refEncryptionKey;
 import static com.example.finalproject5points.FBrefs.refGotin;
 
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -68,8 +71,8 @@ public class getIn_SportsCenter extends AppCompatActivity {
     NfcAdapter nfcAdapter;
     PendingIntent pendingIntent;
     Button scanQrBtn;
-    String scannedData;
     Integer encryptionKey;
+    Context context;
 
     /**
      *
@@ -90,11 +93,12 @@ public class getIn_SportsCenter extends AppCompatActivity {
         back_Tv = findViewById(R.id.back_Tv);
         scanQrBtn = findViewById(R.id.qrScanBtn);
 
+        context = this;
+
+        getEncryptionkey();
         getName();
         checkGuard();
         backBtn();
-        start_createQR();
-        getEncryptionkey();
 
         Intent intent = new Intent(this, getClass());
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -110,6 +114,7 @@ public class getIn_SportsCenter extends AppCompatActivity {
             @Override
             public void onSuccess(DataSnapshot dataSnapshot) {
                 encryptionKey = dataSnapshot.getValue(Integer.class);
+                start_createQR();
             }
         });
     }
@@ -145,7 +150,9 @@ public class getIn_SportsCenter extends AppCompatActivity {
      * This function enables nfc reading.
      */
     private void enableRead() {
-        nfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
+        if(context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_NFC)){
+            nfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
+        }
     }
 
     /**
@@ -220,7 +227,6 @@ public class getIn_SportsCenter extends AppCompatActivity {
                 String str = dataSnapshot.getValue(String.class);
                 if (str.equals(st)){
                     allowGetInNFC();
-                    Toast.makeText(getIn_SportsCenter.this, "Welcome!", Toast.LENGTH_LONG).show();
                     finish();
                 }
             }
@@ -276,7 +282,7 @@ public class getIn_SportsCenter extends AppCompatActivity {
 
         for(int i = 0; i < toEncrypt.length(); i++){
             character = toEncrypt.charAt(i);
-            if (i < 8 || i > (toEncrypt.length() - 6)){
+            if (i < 8 || i > (toEncrypt.length() - 7)){
                 character = (char) (character + encryptionKey);
             }
             ch[i] = character;
@@ -290,7 +296,7 @@ public class getIn_SportsCenter extends AppCompatActivity {
 
         for(int i = 0; i < toDecrypt.length(); i++){
             character = toDecrypt.charAt(i);
-            if (i < 8 || i > (toDecrypt.length() - 6)){
+            if (i < 8 || i > (toDecrypt.length() - 6)) {
                 character = (char) (character - encryptionKey);
             }
             ch[i] = character;
@@ -321,6 +327,7 @@ public class getIn_SportsCenter extends AppCompatActivity {
 
     private void scanCode() {
         ScanOptions options = new ScanOptions();
+        options.setBeepEnabled(false);
         options.setOrientationLocked(true);
         options.setCaptureActivity(CaptureAct.class);
         barLaucher.launch(options);
@@ -328,12 +335,12 @@ public class getIn_SportsCenter extends AppCompatActivity {
 
     ActivityResultLauncher<ScanOptions> barLaucher = registerForActivityResult(new ScanContract(), result ->{
         if(result.getContents() != null){
-            scannedData = result.getContents();
-            decodeData();
+            String scannedData = result.getContents();
+            decodeData(scannedData);
         }
     });
 
-    private void decodeData(){
+    private void decodeData(String scannedData){
         String decryptedStr = decryption(scannedData);
 
         @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmss");
@@ -342,18 +349,17 @@ public class getIn_SportsCenter extends AppCompatActivity {
         Integer current_time = Integer.valueOf(tmp.substring(9));
 
         Integer day = Integer.valueOf(decryptedStr.substring(0, 8));
-        Integer time = Integer.valueOf(decryptedStr.substring(decryptedStr.length() - 9));
+        Integer time = Integer.valueOf(decryptedStr.substring(decryptedStr.length() - 6));
 
         if(current_day - day == 0){
             if (current_time - time < 6){
-                allowGetInQR(decryptedStr.substring(8, decryptedStr.length() - 9), day, time);
+                allowGetInQR(decryptedStr.substring(8, decryptedStr.length() - 6), day, time);
             }
         }
     }
 
     private void allowGetInQR(String uid, Integer day, Integer time) {
         refGotin.child(String.valueOf(day)).child(uid).setValue(String.valueOf(time));
-        Toast.makeText(getIn_SportsCenter.this, "Welcome!", Toast.LENGTH_LONG).show();
         finish();
     }
 
@@ -362,6 +368,6 @@ public class getIn_SportsCenter extends AppCompatActivity {
         String tmp = df.format(Calendar.getInstance().getTime());
         Integer current_day = Integer.valueOf(tmp.substring(0, 8));
         Integer current_time = Integer.valueOf(tmp.substring(9));
-        refGotin.child(String.valueOf(current_day)).child(Uid).setValue(String.valueOf(current_time));
+        refGotin.child(String.valueOf(current_day)).child(refAuth.getUid()).setValue(String.valueOf(current_time));
     }
 }
