@@ -32,6 +32,8 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -41,7 +43,10 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.finalproject5points.CaptureAct;
 import com.example.finalproject5points.R;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
@@ -53,6 +58,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -60,7 +66,7 @@ import java.util.TimerTask;
 public class getIn_SportsCenter extends AppCompatActivity {
     /**
      * @author Roey Schwartz rs7532@bs.amalnet.k12.il
-     * @version 1.0
+     * @version 2.0
      * @since 13/03/2024
      * this activity has the options to get in the sports center (with nfc or qr code).
      */
@@ -73,6 +79,7 @@ public class getIn_SportsCenter extends AppCompatActivity {
     Button scanQrBtn;
     Integer encryptionKey;
     Context context;
+    ValueEventListener valueEventListener;
 
     /**
      *
@@ -107,8 +114,34 @@ public class getIn_SportsCenter extends AppCompatActivity {
 
         pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        @SuppressLint("SimpleDateFormat") String day = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()).substring(0, 8);
+        @SuppressLint("SimpleDateFormat") Integer time = Integer.valueOf(new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()).substring(9));
+
+        valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    HashMap<String, String> data = (HashMap<String, String>) snapshot.getValue();
+                    if(data.containsKey(Uid)){
+                        if((time - Integer.valueOf(data.get(Uid))) < 6){
+                            Toast.makeText(getIn_SportsCenter.this, "Welcome!", Toast.LENGTH_LONG).show();
+                            finish();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        };
+
+        refGotin.child(day).addValueEventListener(valueEventListener);
     }
 
+    /**
+     * This function gets the encryption key from firebase and starts creating the qr code
+     */
     private void getEncryptionkey(){
         refEncryptionKey.get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
             @Override
@@ -119,6 +152,9 @@ public class getIn_SportsCenter extends AppCompatActivity {
         });
     }
 
+    /**
+     * This function gets the name of the user that connected
+     */
     private void getName(){
         currentTrainee.child("fullName").get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
             @Override
@@ -128,6 +164,10 @@ public class getIn_SportsCenter extends AppCompatActivity {
         });
     }
 
+    /**
+     * This function check if the connected user is a guard and if he is a guard it shows the option
+     of scanning qr code of users for entrance.
+     */
     private void checkGuard() {
         currentTrainee.child("guard").get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
             @Override
@@ -140,6 +180,9 @@ public class getIn_SportsCenter extends AppCompatActivity {
         });
     }
 
+    /**
+     * This function shows the option of scanning qr code of other users if the connected user is a guard.
+     */
     private void showScan(){
         if (isGuard){
             scanQrBtn.setVisibility(View.VISIBLE);
@@ -180,6 +223,7 @@ public class getIn_SportsCenter extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         disableRead();
+        refGotin.removeEventListener(valueEventListener);
     }
 
     /**
@@ -211,8 +255,8 @@ public class getIn_SportsCenter extends AppCompatActivity {
                     switch (record.getTnf()) {
                         case NdefRecord.TNF_WELL_KNOWN:
                             if (Arrays.equals(record.getType(), NdefRecord.RTD_TEXT)) {
-                                String st = new String(record.getPayload()).substring(3);
-                                checkEntrance(st);
+                                String nfcData = new String(record.getPayload()).substring(3);
+                                checkEntrance(nfcData);
                             }
                     }
                 }
@@ -220,12 +264,18 @@ public class getIn_SportsCenter extends AppCompatActivity {
         }
     }
 
-    private void checkEntrance(String st){
+    /**
+     * @param nfcData contains the data of the scanned nfc tag
+     *
+     *  This function checks that the nfc tag that scanned is the tag of the sports center's entrance,
+     if it is it uploads the uid of the user that entered the sports center with the date&time of the entrance.
+     */
+    private void checkEntrance(String nfcData){
         NfcStr.get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
             @Override
             public void onSuccess(DataSnapshot dataSnapshot) {
                 String str = dataSnapshot.getValue(String.class);
-                if (str.equals(st)){
+                if (str.equals(nfcData)){
                     allowGetInNFC();
                     finish();
                 }
@@ -290,13 +340,20 @@ public class getIn_SportsCenter extends AppCompatActivity {
         return String.valueOf(ch);
     }
 
+    /**
+     *
+     * @param toDecrypt - the data that the qr code includes
+     * @return decrypted data
+     *
+     * This function decrypts the data of the qr code.
+     */
     private String decryption(String toDecrypt){
         char character;
         char[] ch = new char[toDecrypt.length()];
 
         for(int i = 0; i < toDecrypt.length(); i++){
             character = toDecrypt.charAt(i);
-            if (i < 8 || i > (toDecrypt.length() - 6)) {
+            if (i < 8 || i > (toDecrypt.length() - 7)) {
                 character = (char) (character - encryptionKey);
             }
             ch[i] = character;
@@ -321,10 +378,18 @@ public class getIn_SportsCenter extends AppCompatActivity {
         back_Tv.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
+    /**
+     * @param view
+     *
+     * This function starts the scan of the qr code when the button pressed.
+     */
     public void scanQr_Clicked(View view) {
         scanCode();
     }
 
+    /**
+     * This function generates the scan of the qr code
+     */
     private void scanCode() {
         ScanOptions options = new ScanOptions();
         options.setBeepEnabled(false);
@@ -333,6 +398,9 @@ public class getIn_SportsCenter extends AppCompatActivity {
         barLaucher.launch(options);
     }
 
+    /**
+     * This gets the data of the scanned qr code
+     */
     ActivityResultLauncher<ScanOptions> barLaucher = registerForActivityResult(new ScanContract(), result ->{
         if(result.getContents() != null){
             String scannedData = result.getContents();
@@ -340,6 +408,11 @@ public class getIn_SportsCenter extends AppCompatActivity {
         }
     });
 
+    /**
+     * @param scannedData - the data of the qr code that have been scanned.
+     *
+     * This function checks that the qr code is updated to the last few seconds.
+     */
     private void decodeData(String scannedData){
         String decryptedStr = decryption(scannedData);
 
@@ -358,11 +431,23 @@ public class getIn_SportsCenter extends AppCompatActivity {
         }
     }
 
+    /**
+     * @param uid - uid of the user that it's qr code scanned
+     * @param day - date of scan
+     * @param time - time of scan
+     *
+     * This function uploads the uid of the user that entered the sports center with the date&time of
+     the entrance when it was qr code option.
+     */
     private void allowGetInQR(String uid, Integer day, Integer time) {
         refGotin.child(String.valueOf(day)).child(uid).setValue(String.valueOf(time));
         finish();
     }
 
+    /**
+     * This function uploads the uid of the user that entered the sports center with the date&time of
+     the entrance when it was nfc tag option.
+     */
     private void allowGetInNFC() {
         @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmss");
         String tmp = df.format(Calendar.getInstance().getTime());
