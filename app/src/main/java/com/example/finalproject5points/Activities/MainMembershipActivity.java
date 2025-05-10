@@ -105,7 +105,7 @@ public class MainMembershipActivity extends AppCompatActivity {
                 for (DataSnapshot dataSnapshot: dS.getChildren()){
                     Train tmp = dataSnapshot.getValue(Train.class);
                     Calendar calendar = Calendar.getInstance();
-                    if (Integer.parseInt(String.valueOf(tmp.getTrainingTime().charAt(0))) >= calendar.get(Calendar.DAY_OF_WEEK) || tmp.getTrainName().equals("Gym")){
+                    if (calendar.get(Calendar.DAY_OF_WEEK) - Integer.parseInt(String.valueOf(tmp.getTrainingTime().charAt(0))) >= 0 || tmp.getTrainName().equals("Gym")){
                         if (trainsDisplay.size() < 3){
                             trainsDisplay.add(tmp);
                             details.setText(details.getText() + "\n" +

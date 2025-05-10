@@ -222,7 +222,10 @@ public class LogIn extends AppCompatActivity {
         } else {
             if (emailtmp.isEmpty() || passwordtmp.isEmpty()) {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_LONG).show();
-            } else {
+            }else if (passwordtmp.length() < 6){
+                Toast.makeText(this, "Make a longer password!", Toast.LENGTH_LONG).show();
+            }
+            else {
                 ProgressDialog pd = new ProgressDialog(this);
                 pd.setTitle("Connecting...");
                 pd.show();

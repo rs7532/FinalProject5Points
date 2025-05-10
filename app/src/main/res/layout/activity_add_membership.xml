@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".Activities.AddMembership">
+    tools:context=".Activities.AddMembership"
+    android:background="@drawable/editusers">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,7 +27,10 @@
             android:layout_gravity="center"
             android:ems="10"
             android:hint="Full name"
-            android:inputType="text" />
+            android:inputType="text"
+            android:backgroundTint="#FFFFFF"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF"/>
 
         <Space
             android:layout_width="match_parent"
@@ -39,7 +43,10 @@
             android:layout_gravity="center"
             android:ems="10"
             android:hint="email"
-            android:inputType="text|textEmailAddress" />
+            android:inputType="text|textEmailAddress"
+            android:backgroundTint="#FFFFFF"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF"/>
 
         <Space
             android:layout_width="match_parent"
@@ -52,7 +59,10 @@
             android:layout_gravity="center"
             android:ems="10"
             android:hint="phone number"
-            android:inputType="phone" />
+            android:inputType="phone"
+            android:backgroundTint="#FFFFFF"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF"/>
 
         <Space
             android:layout_width="match_parent"
