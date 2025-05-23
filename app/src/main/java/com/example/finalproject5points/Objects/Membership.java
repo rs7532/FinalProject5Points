@@ -1,5 +1,7 @@
 package com.example.finalproject5points.Objects;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 
 public class Membership {
@@ -56,6 +58,7 @@ public class Membership {
         this.admin = admin;
     }
 
+    @NonNull
     public String toString(){
         String tmp = this.fullName + "\n" + this.phone + "\n" + this.email + "\n";
 

@@ -6,6 +6,8 @@ import static com.example.finalproject5points.FBrefs.refTrainees;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Path;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +26,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.finalproject5points.CustomAdapter;
 import com.example.finalproject5points.Objects.Membership;
 import com.example.finalproject5points.Objects.Train;
 import com.example.finalproject5points.R;
@@ -74,7 +77,8 @@ public class seeMemberships extends AppCompatActivity implements AdapterView.OnI
 
         ArrayAdapter<String> adp = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item, membershipNamesAl);
-        membershipLv.setAdapter(adp);
+        CustomAdapter adp1 = new CustomAdapter(this, membershipNamesAl);
+        membershipLv.setAdapter(adp1);
         membershipLv.setOnItemClickListener(this);
         membershipLv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
@@ -100,7 +104,7 @@ public class seeMemberships extends AppCompatActivity implements AdapterView.OnI
                     membershipData.add(membertmp.toString());
                     membershipNamesAl.add(membertmp.getFullName());
                 }
-                adp.notifyDataSetChanged();
+                adp1.notifyDataSetChanged();
             }
         });
     }
@@ -133,7 +137,6 @@ public class seeMemberships extends AppCompatActivity implements AdapterView.OnI
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         menu.add("Main");
-        menu.add("Update a membership");
         menu.add("Sign out");
         return true;
     }
@@ -164,10 +167,6 @@ public class seeMemberships extends AppCompatActivity implements AdapterView.OnI
         }
         else if(st.equals("Main")){
             intent = new Intent(this, MainMembershipActivity.class);
-        }
-        else if(st.equals("Update a membership")){
-            membershipLv.setOnItemLongClickListener(this);
-            tv.setText("Update Memberships");
         }
         startActivity(intent);
         return super.onOptionsItemSelected(item);

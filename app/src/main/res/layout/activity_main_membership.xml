@@ -22,6 +22,7 @@
             android:layout_height="220dp"
             android:scrollbars="vertical"
             android:text="Your upcoming training sessions:"
+            android:textColor="#FFFFFF"
             android:textSize="20sp" />
 
         <Space

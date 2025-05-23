@@ -34,12 +34,14 @@
         <Spinner
             android:id="@+id/filter_spin"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:visibility="invisible" />
 
         <ListView
             android:id="@+id/membershipLv"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:cacheColorHint="#FFFFFF" />
 
     </LinearLayout>
 </LinearLayout>

@@ -295,6 +295,12 @@ public class AddMembership extends AppCompatActivity {
      * @param view
      */
     public void profile_clicked(View view) {
+        if(ContextCompat.checkSelfPermission(AddMembership.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(AddMembership.this, new String[] {Manifest.permission.CAMERA}, 100);
+        }
+        if(ContextCompat.checkSelfPermission(AddMembership.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(AddMembership.this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, 101);
+        }
         AlertDialog.Builder adb = new AlertDialog.Builder(AddMembership.this);
         adb.setTitle("Attention!");
         adb.setMessage("choose adding profile photo option");
@@ -302,9 +308,6 @@ public class AddMembership extends AppCompatActivity {
         adb.setPositiveButton("Camera", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if(ContextCompat.checkSelfPermission(AddMembership.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
-                    ActivityCompat.requestPermissions(AddMembership.this, new String[] {Manifest.permission.CAMERA}, 100);
-                }
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
                 if(intent.resolveActivity(getPackageManager()) != null){

@@ -8,10 +8,12 @@ import static com.example.finalproject5points.FBrefs.refSports;
 import static com.example.finalproject5points.FBrefs.refTrainees;
 import static com.example.finalproject5points.FBrefs.storageReference;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -31,6 +33,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.finalproject5points.Objects.Membership;
 import com.example.finalproject5points.Objects.Train;
@@ -94,6 +98,10 @@ public class LogIn extends AppCompatActivity {
         logInBtn = findViewById(R.id.signInBtn);
         registerTv = findViewById(R.id.registerTv);
         existTrains = new ArrayList<>();
+
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.INTERNET}, 103);
+        }
 
         intent = new Intent(LogIn.this, MainMembershipActivity.class);
 

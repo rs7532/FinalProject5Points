@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activities.AddTrains">
+    tools:context=".Activities.AddTrains"
+    android:background="@drawable/addtrains">
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,7 +21,10 @@
             android:layout_gravity="center"
             android:ems="10"
             android:hint="Coach Name"
-            android:inputType="text" />
+            android:inputType="text"
+            android:textColor="#FFFFFF"
+            android:textColorHighlight="#FFFFFF"
+            android:textColorHint="#FFFFFF" />
 
         <Space
             android:layout_width="match_parent"
@@ -28,16 +33,23 @@
         <Spinner
             android:id="@+id/SportsSpin"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:backgroundTint="#FFFFFF"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF"/>
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="30dp" />
+            android:layout_height="30dp"
+            />
 
         <Spinner
             android:id="@+id/daysSpin"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:backgroundTint="#FFFFFF"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF"/>
 
         <Button
             android:id="@+id/addtimeBtn"
@@ -51,7 +63,10 @@
         <ListView
             android:id="@+id/timeDayLv"
             android:layout_width="match_parent"
-            android:layout_height="350dp" />
+            android:layout_height="350dp"
+            android:backgroundTint="#FFFFFF"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF"/>
 
         <Space
             android:layout_width="match_parent"

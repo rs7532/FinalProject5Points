@@ -19,7 +19,7 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="120dp" />
+            android:layout_height="140dp" />
 
         <EditText
             android:id="@+id/ET_email"
@@ -92,11 +92,12 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="150dp" />
+            android:layout_height="130dp" />
 
         <TextView
             android:id="@+id/registerTv"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF" />
     </LinearLayout>
 </LinearLayout>
