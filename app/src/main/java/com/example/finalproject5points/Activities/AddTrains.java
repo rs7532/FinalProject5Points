@@ -181,27 +181,30 @@ public class AddTrains extends AppCompatActivity implements AdapterView.OnItemSe
                     hour = hourOfdays;
                     minutes = minute;
 
-                    String trainingtime;
-                    if (minutes < 10){
-                        trainingtime = daysSpin.getSelectedItemPosition() + "" + hour + "0" + minutes;
+                    if (hour >= 6 && hour <= 22) {
+                        String trainingtime;
+                        if (minutes < 10) {
+                            trainingtime = daysSpin.getSelectedItemPosition() + "" + hour + "0" + minutes;
+                        } else {
+                            trainingtime = daysSpin.getSelectedItemPosition() + "" + hour + "" + minutes;
+                        }
+                        Train tmp = new Train(sports[sportsSpin.getSelectedItemPosition()], trainArea, trainingtime, coachNameEt.getText().toString());
+                        if (uidUpdate != null) {
+                            refTrainees.child(uidUpdate).child("trainsData").child(String.valueOf(trainsData.size()))
+                                    .setValue(tmp);
+                        } else {
+                            refTrainees.child("tmp").child(String.valueOf(trainsData.size()))
+                                    .setValue(tmp);
+                        }
+                        trainsData.add(tmp.toString());
+                        trainsObjArray.add(tmp);
+                        trainsTimes.add(String.valueOf(trainsTimes.size()));
+                        trainingDataSpinadp.notifyDataSetChanged();
+                        coachNameEt.setText("");
                     }
                     else{
-                        trainingtime = daysSpin.getSelectedItemPosition() + "" + hour + "" + minutes;
+                        Toast.makeText(AddTrains.this, "enter time between 6:00 to 22:00", Toast.LENGTH_LONG).show();
                     }
-                    Train tmp = new Train(sports[sportsSpin.getSelectedItemPosition()], trainArea, trainingtime, coachNameEt.getText().toString());
-                    if (uidUpdate != null){
-                        refTrainees.child(uidUpdate).child("trainsData").child(String.valueOf(trainsData.size()))
-                                .setValue(tmp);
-                    }
-                    else {
-                        refTrainees.child("tmp").child(String.valueOf(trainsData.size()))
-                                .setValue(tmp);
-                    }
-                    trainsData.add(tmp.toString());
-                    trainsObjArray.add(tmp);
-                    trainsTimes.add(String.valueOf(trainsTimes.size()));
-                    trainingDataSpinadp.notifyDataSetChanged();
-                    coachNameEt.setText("");
                 }
             };
             TimePickerDialog timePickerDialog = new TimePickerDialog(AddTrains.this, onTimeSetListener, hour, minutes, true);
