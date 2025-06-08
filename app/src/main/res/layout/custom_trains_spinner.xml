@@ -8,11 +8,11 @@
     tools:ignore="PxUsage">
 
     <TextView
-        android:id="@+id/adaptertV"
+        android:id="@+id/customAdapterspin"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="75"
         android:gravity="left|center_vertical"
-        android:textColor="@color/white"
+        android:textColor="#65DCCF"
         tools:ignore="RtlHardcoded" />
 </LinearLayout>

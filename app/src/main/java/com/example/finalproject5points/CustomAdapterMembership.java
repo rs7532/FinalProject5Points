@@ -10,16 +10,17 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class CustomAdapter extends BaseAdapter {
+public class CustomAdapterMembership extends BaseAdapter {
     private Context context;
     private ArrayList<String> names;
     private LayoutInflater inflater;
 
-    public CustomAdapter(Context context, ArrayList<String> names){
+    public CustomAdapterMembership(Context context, ArrayList<String> names){
         this.context = context;
         this.names = names;
         this.inflater = LayoutInflater.from(context);
     }
+
     /**
      * @return Length of the items list
      */
@@ -63,8 +64,8 @@ public class CustomAdapter extends BaseAdapter {
     @SuppressLint("ViewHolder")
     @Override
     public View getView(int position, View view, ViewGroup parent) {
-        view = inflater.inflate(R.layout.custon_membership_lv, parent, false);
-        TextView str = view.findViewById(R.id.adaptertV);
+        view = inflater.inflate(R.layout.custom_membership_lv, parent, false);
+        TextView str = view.findViewById(R.id.AdaptertV);
         str.setText(names.get(position));
         return view;
     }

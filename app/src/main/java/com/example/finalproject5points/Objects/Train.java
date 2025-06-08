@@ -20,7 +20,12 @@ public class Train {
     public Train(String trainName){
         this.trainName = trainName;
         this.trainingArea = "free";
-        this.trainingTime = "0";
+        if(trainName.equals("Gym")){
+            this.trainingTime = "-1";
+        }
+        else{
+            this.trainingTime = "-2";
+        }
         this.coachName = "None";
     }
 
@@ -72,6 +77,10 @@ public class Train {
             return this.trainName + " with coach " + this.coachName + " at the \n" + this.trainingArea + " on "
                     + day + " at " + time;        }
     }
+
+    /**
+     * @return day of week by the trainingTime.
+     */
     public String getDayofWeek(){
         if (this.trainingTime.charAt(0) == '1') {
             return "Sunday";

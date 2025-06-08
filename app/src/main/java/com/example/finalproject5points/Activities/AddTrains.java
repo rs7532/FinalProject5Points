@@ -1,46 +1,35 @@
 package com.example.finalproject5points.Activities;
 
-import static com.example.finalproject5points.FBrefs.FBDB;
-import static com.example.finalproject5points.Activities.LogIn.currentTrainee;
-import static com.example.finalproject5points.FBrefs.refAuth;
 import static com.example.finalproject5points.FBrefs.refTrainees;
 
 import android.annotation.SuppressLint;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.finalproject5points.CustomAdapterMembership;
+import com.example.finalproject5points.CustomAdapterTrains;
 import com.example.finalproject5points.Objects.Train;
 import com.example.finalproject5points.R;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class AddTrains extends AppCompatActivity implements AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener{
     /**
@@ -59,7 +48,7 @@ public class AddTrains extends AppCompatActivity implements AdapterView.OnItemSe
     int hour, minutes, pos;
     Spinner sportsSpin, daysSpin;
     String trainName, trainArea;
-    ArrayAdapter<String> trainingDataSpinadp;
+    CustomAdapterTrains trainingDataSpinadp;
     Intent gi;
     String uidUpdate;
 
@@ -96,18 +85,15 @@ public class AddTrains extends AppCompatActivity implements AdapterView.OnItemSe
         hour = 0;
         minutes = 0;
 
-        ArrayAdapter<String> sportsSpinadp = new ArrayAdapter<String>( this,
-                android.R.layout.simple_spinner_dropdown_item, sports);
+        CustomAdapterTrains sportsSpinadp = new CustomAdapterTrains(this, sports);
         sportsSpin.setAdapter(sportsSpinadp);
         sportsSpin.setOnItemSelectedListener(this);
 
-        ArrayAdapter<String> daysSpinadp = new ArrayAdapter<String>( this,
-                android.R.layout.simple_spinner_dropdown_item, daysLst);
+        CustomAdapterTrains daysSpinadp = new CustomAdapterTrains(this, daysLst);
         daysSpin.setAdapter(daysSpinadp);
         daysSpin.setOnItemSelectedListener(this);
 
-        trainingDataSpinadp = new ArrayAdapter<String>( this,
-                android.R.layout.simple_spinner_dropdown_item, trainsData);
+        trainingDataSpinadp = new CustomAdapterTrains(this, trainsData);
         trainingDataLv.setAdapter(trainingDataSpinadp);
         trainingDataLv.setOnItemClickListener(this);
         trainingDataLv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -121,6 +107,7 @@ public class AddTrains extends AppCompatActivity implements AdapterView.OnItemSe
     @Override
     protected void onResume() {
         super.onResume();
+        trainsData.clear();
         if (uidUpdate != null) {
             refTrainees.child(uidUpdate).child("trainsData").get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
                 @Override
@@ -150,10 +137,17 @@ public class AddTrains extends AppCompatActivity implements AdapterView.OnItemSe
      */
     private void addTrainDetails(DataSnapshot data){
         Train tmp = data.getValue(Train.class);
-        trainsData.add(tmp.toString());
-        trainsObjArray.add(tmp);
-        trainsTimes.add(tmp.getTrainingTime());
-        trainingDataSpinadp.notifyDataSetChanged();
+        if(!tmp.getTrainName().equals("choose sport")){
+            trainsData.add(tmp.toString());
+            trainsObjArray.add(tmp);
+            if(tmp.getTrainingTime().equals("-1") || tmp.getTrainingTime().equals("-2")){
+                trainsTimes.add(tmp.getTrainingTime());
+            }
+            else{
+                trainsTimes.add(String.valueOf(trainsTimes.size() + 1));
+            }
+            trainingDataSpinadp.notifyDataSetChanged();
+        }
     }
 
     /**
@@ -163,17 +157,18 @@ public class AddTrains extends AppCompatActivity implements AdapterView.OnItemSe
      */
     public void addTimeDay(View view) {
         if (daysSpin.getVisibility() == View.INVISIBLE){
-            Train tmp = new Train(sportsSpin.getSelectedItem().toString());
+            Train tmp = new Train(sports[sportsSpin.getSelectedItemPosition()]);
             if (uidUpdate != null){
-                refTrainees.child(uidUpdate).child("trainsData").child(tmp.getTrainingTime())
+                refTrainees.child(uidUpdate).child("trainsData").child(tmp.getTrainName())
                         .setValue(tmp);
             }
             else{
                 refTrainees.child("tmp").child(tmp.getTrainingTime())
                         .setValue(tmp);
             }
-            trainsData.add(tmp.toString());
             trainsObjArray.add(tmp);
+            trainsData.add(tmp.toString());
+            trainsTimes.add(tmp.getTrainingTime());
             trainingDataSpinadp.notifyDataSetChanged();
         }
         else if (coachNameEt.getText().toString().isEmpty() || sportsSpin.getSelectedItemPosition() == 0 || daysSpin.getSelectedItemPosition() == 0) {
@@ -204,6 +199,7 @@ public class AddTrains extends AppCompatActivity implements AdapterView.OnItemSe
                     }
                     trainsData.add(tmp.toString());
                     trainsObjArray.add(tmp);
+                    trainsTimes.add(String.valueOf(trainsTimes.size()));
                     trainingDataSpinadp.notifyDataSetChanged();
                     coachNameEt.setText("");
                 }

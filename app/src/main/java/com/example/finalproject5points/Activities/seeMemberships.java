@@ -6,8 +6,6 @@ import static com.example.finalproject5points.FBrefs.refTrainees;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.Path;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,15 +16,11 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-import com.example.finalproject5points.CustomAdapter;
+import com.example.finalproject5points.CustomAdapterMembership;
 import com.example.finalproject5points.Objects.Membership;
 import com.example.finalproject5points.Objects.Train;
 import com.example.finalproject5points.R;
@@ -75,9 +69,8 @@ public class seeMemberships extends AppCompatActivity implements AdapterView.OnI
         membershipData = new ArrayList<>();
         uids = new ArrayList<>();
 
-        ArrayAdapter<String> adp = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_dropdown_item, membershipNamesAl);
-        CustomAdapter adp1 = new CustomAdapter(this, membershipNamesAl);
+
+        CustomAdapterMembership adp1 = new CustomAdapterMembership(this, membershipNamesAl);
         membershipLv.setAdapter(adp1);
         membershipLv.setOnItemClickListener(this);
         membershipLv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
