@@ -8,6 +8,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -185,5 +186,20 @@ public class seeMemberships extends AppCompatActivity implements AdapterView.OnI
         intent.putExtra("uid", uids.get(position));
         startActivity(intent);
         return false;
+    }
+
+    /**
+     *
+     * @param keyCode The value in event.getKeyCode().
+     * @param event Description of the key event.
+     *
+     * This function disabled the back button at bottom.
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }
