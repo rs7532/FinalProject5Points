@@ -25,6 +25,7 @@ import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -463,5 +464,20 @@ public class getIn_SportsCenter extends AppCompatActivity {
         Integer current_day = Integer.valueOf(tmp.substring(0, 8));
         Integer current_time = Integer.valueOf(tmp.substring(9));
         refGotin.child(String.valueOf(current_day)).child(refAuth.getUid()).setValue(String.valueOf(current_time));
+    }
+
+    /**
+     *
+     * @param keyCode The value in event.getKeyCode().
+     * @param event Description of the key event.
+     *
+     * This function disabled the back button at bottom.
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

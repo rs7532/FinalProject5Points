@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -439,5 +440,20 @@ public class AddMembership extends AppCompatActivity {
         }
         startActivity(intent);
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     *
+     * @param keyCode The value in event.getKeyCode().
+     * @param event Description of the key event.
+     *
+     * This function disabled the back button at bottom.
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

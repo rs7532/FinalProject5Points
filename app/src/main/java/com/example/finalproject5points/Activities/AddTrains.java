@@ -7,6 +7,7 @@ import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -303,5 +304,20 @@ public class AddTrains extends AppCompatActivity implements AdapterView.OnItemSe
 
         AlertDialog ad = adb.create();
         ad.show();
+    }
+
+    /**
+     *
+     * @param keyCode The value in event.getKeyCode().
+     * @param event Description of the key event.
+     *
+     * This function disabled the back button at bottom.
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }
