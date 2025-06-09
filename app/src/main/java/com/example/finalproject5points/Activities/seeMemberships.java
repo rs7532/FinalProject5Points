@@ -1,5 +1,6 @@
 package com.example.finalproject5points.Activities;
 
+import static com.example.finalproject5points.FBrefs.Uid;
 import static com.example.finalproject5points.FBrefs.refAuth;
 import static com.example.finalproject5points.FBrefs.refTrainees;
 
@@ -87,15 +88,17 @@ public class seeMemberships extends AppCompatActivity implements AdapterView.OnI
             @Override
             public void onSuccess(DataSnapshot dataSnapshot) {
                 for(DataSnapshot Memberdata : dataSnapshot.getChildren()){
-                    Membership membertmp = Memberdata.getValue(Membership.class);
-                    uids.add(Memberdata.getKey());
-                    ArrayList<Train> traintmp = new ArrayList<>();
-                    for (DataSnapshot Traindata : Memberdata.child("trainsData").getChildren()){
-                        traintmp.add(Traindata.getValue(Train.class));
+                    if (!Memberdata.getKey().equals(Uid) || toUpdate){
+                        Membership membertmp = Memberdata.getValue(Membership.class);
+                        uids.add(Memberdata.getKey());
+                        ArrayList<Train> traintmp = new ArrayList<>();
+                        for (DataSnapshot Traindata : Memberdata.child("trainsData").getChildren()){
+                            traintmp.add(Traindata.getValue(Train.class));
+                        }
+                        membertmp.setTrainsData(traintmp);
+                        membershipData.add(membertmp.toString());
+                        membershipNamesAl.add(membertmp.getFullName());
                     }
-                    membertmp.setTrainsData(traintmp);
-                    membershipData.add(membertmp.toString());
-                    membershipNamesAl.add(membertmp.getFullName());
                 }
                 adp1.notifyDataSetChanged();
             }
