@@ -68,10 +68,6 @@
             android:textColor="#FFFFFF"
             android:textColorHint="#FFFFFF"/>
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="50dp" />
-
         <Button
             android:id="@+id/saveTrainsBtn"
             android:layout_width="200dp"
