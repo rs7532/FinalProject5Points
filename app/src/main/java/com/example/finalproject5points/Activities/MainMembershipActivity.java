@@ -6,6 +6,7 @@ import static com.example.finalproject5points.FBrefs.refMembershipTrains;
 import static com.example.finalproject5points.FBrefs.storageReference;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -76,7 +78,6 @@ public class MainMembershipActivity extends AppCompatActivity {
 
         checkAdmin();
         retrieveExistTrains();
-
     }
 
     /**

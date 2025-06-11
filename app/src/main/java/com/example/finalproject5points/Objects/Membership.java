@@ -9,7 +9,9 @@ public class Membership {
     public String email;
     public String phone;
     public ArrayList<Train> trainsData;
-    public boolean guard, admin;
+    public boolean guard;
+    public boolean admin;
+
     public Membership(){}
     public Membership(String fullName, String email, String phone, ArrayList<Train> trainsData, boolean guard, boolean admin){
         this.fullName = fullName;

@@ -112,6 +112,7 @@ public class AddMembership extends AppCompatActivity {
         gotUid = gi.getStringExtra("uid");
 
         if (gotUid != null){
+            emailEt.setVisibility(View.INVISIBLE);
             setData();
         }
 
@@ -144,8 +145,8 @@ public class AddMembership extends AppCompatActivity {
             public void onSuccess(DataSnapshot dataSnapshot) {
                 Membership tmp = dataSnapshot.getValue(Membership.class);
                 nameEt.setText(tmp.getFullName());
-                emailEt.setText(tmp.getEmail());
                 phoneEt.setText(tmp.getPhone());
+                emailEt.setText(tmp.getEmail());
                 isGuard.setChecked(tmp.isGuard());
                 isAdmin.setChecked(tmp.isAdmin());
             }
@@ -245,7 +246,12 @@ public class AddMembership extends AppCompatActivity {
                     addNewMembership();
                 }
                 else{
-                    Toast.makeText(this, "choose an image", LENGTH_LONG).show();
+                    if (gotUid != null){
+                        addNewMembership();
+                    }
+                    else{
+                        Toast.makeText(this, "choose an image", LENGTH_LONG).show();
+                    }
                 }
             }
         }

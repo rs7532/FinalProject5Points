@@ -71,17 +71,18 @@ public class Train {
             return this.trainName + ", Entry is allowed at any time for any facility except gym";
         }
         else{
-            String day = getDayofWeek();
+            String day = DayofWeek();
             String time = this.trainingTime.substring(1, 3) + ":" + this.trainingTime.substring(3);
 
             return this.trainName + " with coach " + this.coachName + " at the \n" + this.trainingArea + " on "
-                    + day + " at " + time;        }
+                    + day + " at " + time;
+        }
     }
 
     /**
      * @return day of week by the trainingTime.
      */
-    public String getDayofWeek(){
+    public String DayofWeek(){
         if (this.trainingTime.charAt(0) == '1') {
             return "Sunday";
         } else if (this.trainingTime.charAt(0) == '2') {
